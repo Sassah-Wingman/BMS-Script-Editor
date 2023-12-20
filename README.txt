@@ -1,0 +1,1 @@
+BMS Script Editor is a program intended to be used with Falcon BMS Training Scripts.
