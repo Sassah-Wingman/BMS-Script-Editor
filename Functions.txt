@@ -1,3 +1,5 @@
+//
+
 SetCursor
 MoveCursor
 Print
@@ -53,4 +55,3 @@ If
 EndScript
 EnterCritical
 EndCritical
-None
