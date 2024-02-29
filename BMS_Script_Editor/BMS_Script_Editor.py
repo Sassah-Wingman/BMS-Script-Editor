@@ -1,18 +1,15 @@
-from gc import disable
-from turtle import heading
-from weakref import finalize
-import PySimpleGUI as sg
-import os.path
-import sys
-import mmap, re
-import warnings
+# This is a application designed to edit scripts for Falcon BMS 
+# using Pysimplegui 3.17.
+# Sao Paulo, Brazil
+# Dec 2023
+#__version__ = "1.0.2 - Feb 2024"
 
-__version__ = "1.0.0"
+import PySimpleGUI as sg
+import os
 
 sg.theme("GrayGrayGray")
-#sg.main_sdk_help()
 
-
+# get list of BMS SCRIPT FUNCTIONS to be displayed in Combo
 def get_function_list():
    function_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Functions.txt") as file_functions:
@@ -20,6 +17,7 @@ def get_function_list():
       function_list.sort()
    return function_list
 
+# get list of BMS CALLBACKS to be displayed in Combo
 def get_callback_list():
    callback_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Callback_List.txt") as file_callbacks:
@@ -27,6 +25,7 @@ def get_callback_list():
       callback_list.sort()
    return callback_list
 
+# get list of SCRIPT COLORS to be displayed in Combo
 def get_color_list():
    color_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Colors.txt") as file_colors:
@@ -35,32 +34,31 @@ def get_color_list():
    return color_list
 
 merged_color_callback = (get_color_list() + get_callback_list())
-
-def editor_window():
-    header = [sg.Text("Functions", pad=(0,0), size = (15, 1), justification = "center"),
-              sg.Text("Parameter 1", pad=(0,0), size = (20, 1), justification = "center"),
-              sg.Text("Parameter 2", pad=(0,0), size = (20, 1), justification = "center"),
-              sg.Text("Parameter 3", pad=(0,0), size = (20, 1), justification = "center"),
-              sg.Text("Parameter 4", pad=(0,0), size = (20, 1), justification = "center"),
-              sg.Text("Parameter 5", pad=(0,0), size = (20, 1), justification = "center"),
-              sg.Text("Parameter 6", pad=(0,0), size = (20, 1), justification = "center"),]
-
-    layout = [header]
-     
-    for row in range (0, 20):
-        current_row = [sg.Combo(values = get_function_list(), size = (15, 1), pad = (0, 0), key = (row, 0)),
-                       sg.Combo(values = merged_color_callback, size = (20, 1), pad = (0, 0), key = (row, 0)),
-                       sg.Combo(values = get_callback_list(), size = (20, 1), pad = (0, 0), key = (row, 0)), 
-                       sg.Combo(values = get_callback_list(), size = (20, 1), pad = (0, 0), key = (row, 0)),
-                       sg.Combo(values = get_callback_list(), size = (20, 1), pad = (0, 0), key = (row, 0)),
-                       sg.Combo(values = get_callback_list(), size = (20, 1), pad = (0, 0), key = (row, 0)),
-                       sg.Combo(values = get_callback_list(), size = (20, 1), pad = (0, 0), key = (row, 0)),]
-
-        layout.append(current_row)
-        
-    button_row = [sg.Button("Edit"), sg.Button("Clear"), sg.Button("Delete"), sg.Button("Close")]
-    
-    layout.append(button_row)
+  
+def script_manipulation_form():
+    find_tooltip = "TODO."
+    list_of_script_parameters = []
+    headings = ["Function", "Parameter 1", "Parameter 2", "Parameter 3", "Parameter 4", "Parameter 5"]
+    layout = [[sg.Text("Function:"), sg.Combo(values = get_function_list(),  key="-FUNC-")],
+              [sg.Text("Parameter 1:"), sg.Combo(values = merged_color_callback, key="-PAR1-")],
+              [sg.Text("Parameter 2:"), sg.Combo(values = merged_color_callback, key="-PAR2-")],
+              [sg.Text("Parameter 3:"), sg.Input(key="-PAR3-", do_not_clear=False)],
+              [sg.Text("Parameter 4:"), sg.Input(key="-PAR4-", do_not_clear=False)],
+              [sg.Text("Parameter 5:"), sg.Input(key="-PAR5-", do_not_clear=False)],
+              [sg.Button("Add Line", key = "-ADD-"), 
+               sg.Button("Edit Line", key = "-EDIT-"),
+               sg.Button("Save Edition", key = "-SAED-", disabled=True),
+               sg.Button("Delete Line", key = "-DEL-"), 
+               sg.Button("Save File", key = "-SAVE-")],
+              [sg.Table(list_of_script_parameters, headings, 
+                        num_rows = 20, 
+                        display_row_numbers = True, 
+                        background_color = "gray", 
+                        alternating_row_color = "light gray",
+                        text_color = "Black",
+                        selected_row_colors = ("white", "blue"),
+                        justification = "left", 
+                        key = "-TABLE-")],]
     
     color_row = [[sg.HorizontalSeparator()],
                  [sg.Button("0xFFFF0000", tooltip="Red.", size=(10,2), button_color = ("White", "Red"), key="-RED-"),
@@ -74,72 +72,112 @@ def editor_window():
     
     layout.append(color_row)
     
-    editor_window = sg.Window("Editor Window", layout)
+    manipulation_window = sg.Window("Script Form", layout, resizable=True, modal = True)
     
     while True:
-        event, values = editor_window.read()
-        if event in (sg.WIN_CLOSED, "Close"):
+        event, values = manipulation_window.read()
+        #print(event, values)
+        if event == sg.WIN_CLOSED:
             break
+        
+        # routine to add single line to a script text
+        if event == "-ADD-":
+            #store values filled in the form to a list
+            list_of_script_parameters.append([values["-FUNC-"], 
+                                    values["-PAR1-"], 
+                                    values["-PAR2-"], 
+                                    values["-PAR3-"], 
+                                    values["-PAR4-"], 
+                                    values["-PAR5-"]])
+            manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
+            #clear form of previous inputs
+            manipulation_window["-FUNC-"].update([])
+            manipulation_window["-PAR1-"].update([])
+            manipulation_window["-PAR2-"].update([])
+            #remove "\n" symbol from all lists in the list, generated from append.values
+            adjusted_list_of_script_parameters = []
+            for _list in list_of_script_parameters:
+                for _string in _list:
+                    _list=[_string.strip() for _string in _list]
+                adjusted_list_of_script_parameters.append(_list)
+        
+        #routine to edit and save a edited line          
+        if event == "-EDIT-":
+            if values["-TABLE-"]==[]:
+                sg.popup("No row selected!")
+            else:
+                edit_row = values["-TABLE-"][0]
+                sg.popup("Edit selected row!")
+                manipulation_window["-FUNC-"].update(value=list_of_script_parameters[edit_row][0])
+                manipulation_window["-PAR1-"].update(value=list_of_script_parameters[edit_row][1])
+                manipulation_window["-PAR2-"].update(value=list_of_script_parameters[edit_row][2])
+                manipulation_window["-PAR3-"].update(value=list_of_script_parameters[edit_row][3])
+                manipulation_window["-PAR4-"].update(value=list_of_script_parameters[edit_row][4])
+                manipulation_window["-PAR5-"].update(value=list_of_script_parameters[edit_row][5])
+                manipulation_window["-SAED-"].update(disabled=False)
+        if event == "-SAED-":
+            list_of_script_parameters[edit_row]=[values["-FUNC-"], 
+                                                          values["-PAR1-"], 
+                                                          values["-PAR2-"], 
+                                                          values["-PAR3-"], 
+                                                          values["-PAR4-"], 
+                                                          values["-PAR5-"]]
+            manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
+            manipulation_window["-FUNC-"].update(value=" ")
+            manipulation_window["-PAR1-"].update(value=" ")
+            manipulation_window["-PAR2-"].update(value=" ")
+            manipulation_window["-PAR3-"].update(value=" ")
+            manipulation_window["-PAR4-"].update(value=" ")
+            manipulation_window["-PAR5-"].update(value=" ")
+            manipulation_window["-SAED-"].update(disabled=True)
+
+        #routine to delete script lines
+        if event == "-DEL-":
+            if values["-TABLE-"]==[]:
+                sg.popup("No row selected!")
+            else:
+                sg.popup("Once deleted, the line can't be restored! Continue?")
+                del list_of_script_parameters[values["-TABLE-"][0]]
+                manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
+
+        #routine to save a script text file in BMS folder
+        if event == "-SAVE-":
+            file_to_save_name=sg.popup_get_file(message="Save",
+                                                title="Save New File", 
+                                                default_extension="*.txt",
+                                                file_types=(("TXT Files", "*.txt")),
+                                                history=True,
+                                                keep_on_top=True, 
+                                                modal=True,
+                                                save_as=True)
+            with open (file_to_save_name, "w") as new_file_to_save:
+                for _list in adjusted_list_of_script_parameters:
+                  for _string in _list:
+                      new_file_to_save.write(str(_string) + " ")
+                  new_file_to_save.write("\n")
+
+        # routine that show color names in buttons         
         if event == "-RED-":
-            editor_window["-RMK-"].update("Red!")
+            manipulation_window["-RMK-"].update("Red!")
         if event == "-YELLOW-":
-            editor_window["-RMK-"].update("Yellow!")
+            manipulation_window["-RMK-"].update("Yellow!")
         if event == "-CYAN-":
-            editor_window["-RMK-"].update("Cyan!")
+            manipulation_window["-RMK-"].update("Cyan!")
         if event == "-Magenta-":
-            editor_window["-RMK-"].update("Magenta!")
+            manipulation_window["-RMK-"].update("Magenta!")
         if event == "-GREEN-":
-            editor_window["-RMK-"].update("Green!")
+            manipulation_window["-RMK-"].update("Green!")
         if event == "-BLACK-":
-            editor_window["-RMK-"].update("Black!")    
-        # if event == 'SaveSettings':
-        #     filename = sg.popup_get_file('Save Settings', save_as=True, no_window=True)
-        #     window.SaveToDisk(filename)
-        #     # save(values)
-         # elif event == 'LoadSettings':
-         #    filename = sg.popup_get_file('Load Settings', no_window=True)
-         #    window.LoadFromDisk(filename)
-         #    # load(form)
-
-               
-    editor_window.close()
-    return editor_window
-
+            manipulation_window["-RMK-"].update("Black!") 
+                      
+                  # file_to_save.write(_list[0] + " ")
+                  # j = 1
+                  # while j < len(_list):
+                  #      file_to_save.write(str(_list[j]) + " ")
+                  #      j += 1
+                  # file_to_save.write("\n")
     
-def table_window():
-    find_tooltip = "TODO."
-   
-    data = [["WaitTime",30, 2.0, " "], ["SetCursor", 60, " ", 0.05], ["SetColor", "000F000F", " ", " "]]
-    #data = [["-TEXT-"]]
-    table_window = [[sg.Table(values=data, headings=["Command", "Parameter 1", "Parameter 2", "Parameter 3"], 
-                        def_col_width = 30,
-                        text_color="Dark Blue",
-                        num_rows=20,
-                        justification="center",
-                        alternating_row_color='lightblue',
-                        selected_row_colors='red on white',
-                        display_row_numbers = True, 
-                        expand_x=True)],]
-
-    table_buttons = [[sg.Text(" ")],
-                    [sg.HorizontalSeparator()],
-                    [sg.Text(" ")],
-                    [sg.Button(button_text = "Close", key="-CLOSE_TABLE-", size = (10, 1), font="_ 12")],]
-
-    layout = [[table_window], [table_buttons]]
-
-
-    table_window = sg.Window("Script Table", layout, size = (700, 600), resizable=True)
-
-    while True:
-      event, values = table_window.read()
-      print(event, values)
-      if event in (sg.WIN_CLOSED, "-CLOSE_TABLE-"):
-        print (event)
-        break
-    table_window.close()
-    return table_window
-   
+    return manipulation_window
 
 def make_window(): 
     
@@ -147,26 +185,24 @@ def make_window():
     
     browse_line = [[sg.Text("Scripts Data Folder",  font="_ 16")],
                    [sg.Input(size=(40, 1), enable_events=True,  key="-FOLDER-"), sg.FolderBrowse(enable_events=True)],
-                   #[sg.Combo(sg.user_settings_get_entry("-filenames-", []), default_value=sg.user_settings_get_entry("-last filename-", " "), size = (50/1), key= "-FOLDER-"), sg.FolderBrowse()],
                    [sg.Text(" ")],
                    [sg.HorizontalSeparator()],]
    
     left_col = sg.Column([[sg.Text("List of Files:")],
-                          [sg.Listbox(values=[], enable_events=True, size=(20,20), key="-FILE_LIST-", expand_x=True, expand_y=True)],], 
+                          [sg.Listbox(values=[], enable_events=True, size=(20,20), key="-FILE_LIST-", expand_x=True, expand_y=True, select_mode=sg.LISTBOX_SELECT_MODE_SINGLE)],], 
                            element_justification = "Left", expand_x = True, expand_y = False)
           
     right_col = sg.Column([[sg.Text("File Name: ", key = "-TOUT-")],
-                          [sg.Multiline(size=(30,24), key="-TEXT-", expand_x=True, expand_y=False)],], 
+                          [sg.Multiline(size=(30,24), key="-TEXT-", expand_x=True, expand_y=False, disabled=True, do_not_clear=False)],], 
                            element_justification = "Left", expand_x = True, expand_y=False)
      
     buttons_line = [[sg.Text(" ")],
                     [sg.HorizontalSeparator()],
                     [sg.Text(" ")],
-                    [sg.Button(button_text = "Open", key = "-OPEN-", size = (10, 1), font="_ 12"),
-                     sg.Button(button_text = "New", key = "-NEW-", size = (10, 1), font="_ 12"),
-                     sg.Button(button_text = "Delete", key = "-DEL-", size = (10, 1), font="_ 12"),
-                     sg.Button(button_text = "Quit", key = "-QUIT-", size = (10, 1), font="_ 12"),
-                     sg.Button(button_text = "Show Table", key = "-TABLE-", size = (10, 1), font="_ 12")],]
+                    [sg.Button(button_text = "Open Script", key = "-OPEN_S-", size = (12, 1), font="_ 12"),
+                     sg.Button(button_text = "New Script", key = "-NEW_S-", size = (12, 1), font="_ 12"),
+                     sg.Button(button_text = "Delete Script", key = "-DEL_S-", size = (12, 1), font="_ 12"),
+                     sg.Button(button_text = "Quit", key = "-QUIT_S-", size = (12, 1), font="_ 12")]]
     
     checkbox_line = [[sg.Text(" ")],
                     [sg.Radio("Show TXT Only", "RADIO1", enable_events=True, default=False, key = "-TXT-", circle_color="darkblue", tooltip = "Show only txt extention."), 
@@ -175,7 +211,6 @@ def make_window():
                     [sg.Text("TXT scripts are used with Tactical Engagement missions (*.TAC) and can be disabled before flight.")],
                     [sg.Text("RUN scripts are used in TRAINING missions (*.TRN) and cannot be disabled by players.")],
                      sg.Button(button_text = "Version", key = "-VER-"),]
-        
 
     layout = [[browse_line], [left_col, right_col], [buttons_line], [checkbox_line]]
               
@@ -189,11 +224,17 @@ def main():
     while True:
         event, values = window.read()
         print(event, values)
-        if event in (sg.WIN_CLOSED, "-QUIT-"):
+        
+        #close window and terminate application
+        if event in (sg.WIN_CLOSED, "-QUIT_S-"):
             print (event)
             break
+        
+        #show python version
         if event == "-VER-":
-            sg.popup_scrolled(sg.get_versions())
+            sg.popup_ok("Version 1.0.2", modal = True, keep_on_top=True)
+            
+        #routine to pick work folder and to show files    
         if event == "-FOLDER-":
             folder_location = values["-FOLDER-"]
             try:
@@ -211,21 +252,32 @@ def main():
                 window["-FILE_LIST-"].update(file_names)
         elif event == "-FILE_LIST-" and len(values["-FILE_LIST-"]) > 0:
             file_selection = values["-FILE_LIST-"] [0]
-            with open(os.path.join(folder_location, file_selection)) as file:
-                contents=file.read()
+            with open(os.path.join(folder_location, file_selection)) as file_to_read:
+                contents=file_to_read.read()
                 window["-TOUT-"].update(os.path.join(folder_location, file_selection))
                 window["-TEXT-"].update(contents)
-                print (contents)
-        if event == "-OPEN-":
+                
+        #routine to open a script file
+        if event == "-OPEN_S-":
+            edit_list=["-TEXT-"]
             print (["-TEXT-"])
-        if event == "-NEW-":
-            editor_window()
-        if event == "-DEL-":
-            pass
-        if event == "-TABLE-":
-            table_window()
-
-                        
+           
+        #routine to create a new script file    
+        if event == "-NEW_S-":
+            script_manipulation_form()
+         
+        #routine to delete a script file    
+        if event == "-DEL_S-":
+             if values["-FILE_LIST-"]==[]:
+                sg.popup("No script file selected!")
+             elif sg.popup("Once deleted, the file can't be restored! Continue?"):
+                file_selection=values["-FILE_LIST-"][0]
+                file_to_delete = os.path.join(folder_location, file_selection)
+                os.remove(file_to_delete)
+                file_names = [f for f in file_list if os.path.isfile(os.path.join(folder_location, f)) and f.lower().endswith((".txt", ".run"))]
+                window["-FILE_LIST-"].update(file_names)
+                window["-TOUT-"].update(" ")
+                window["-TEXT-"].update(" ")
             
     window.close()
     
