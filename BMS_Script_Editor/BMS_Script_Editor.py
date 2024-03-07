@@ -6,6 +6,7 @@
 
 import PySimpleGUI as sg
 import os
+import sys
 
 sg.theme("GrayGrayGray")
 
@@ -13,6 +14,7 @@ sg.theme("GrayGrayGray")
 def get_function_list():
    function_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Functions.txt") as file_functions:
+   #with open("G:/Other computers/My Computer/repos/BMS_Script_Editor/Functions.txt") as file_functions:   
       function_list=file_functions.readlines()
       function_list.sort()
    return function_list
@@ -21,6 +23,7 @@ def get_function_list():
 def get_callback_list():
    callback_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Callback_List.txt") as file_callbacks:
+   #with open("G:/Other computers/My Computer/repos/BMS_Script_Editor/Callback_List.txt") as file_callbacks:   
       callback_list=file_callbacks.readlines()
       callback_list.sort()
    return callback_list
@@ -29,15 +32,17 @@ def get_callback_list():
 def get_color_list():
    color_list=[]
    with open("C:/Users/gsmei/source/repos/BMS_Script_Editor/Colors.txt") as file_colors:
+   #with open("G:/Other computers/My Computer/repos/BMS_Script_Editor/Colors.txt") as file_colors:   
       color_list=file_colors.readlines()
       color_list.sort()
    return color_list
 
 merged_color_callback = (get_color_list() + get_callback_list())
-  
-def script_manipulation_form():
+
+#manipulates the script adding, editing or deleting lines 
+def script_manipulation_form(script_list):
     find_tooltip = "TODO."
-    list_of_script_parameters = []
+    list_of_script_parameters = script_list
     headings = ["Function", "Parameter 1", "Parameter 2", "Parameter 3", "Parameter 4", "Parameter 5"]
     layout = [[sg.Text("Function:"), sg.Combo(values = get_function_list(),  key="-FUNC-")],
               [sg.Text("Parameter 1:"), sg.Combo(values = merged_color_callback, key="-PAR1-")],
@@ -130,6 +135,12 @@ def script_manipulation_form():
             manipulation_window["-PAR4-"].update(value=" ")
             manipulation_window["-PAR5-"].update(value=" ")
             manipulation_window["-SAED-"].update(disabled=True)
+            #remove "\n" symbol from all lists in the list, generated from append.values
+            adjusted_list_of_script_parameters = []
+            for _list in list_of_script_parameters:
+                for _string in _list:
+                    _list=[_string.strip() for _string in _list]
+                adjusted_list_of_script_parameters.append(_list)
 
         #routine to delete script lines
         if event == "-DEL-":
@@ -139,6 +150,11 @@ def script_manipulation_form():
                 sg.popup("Once deleted, the line can't be restored! Continue?")
                 del list_of_script_parameters[values["-TABLE-"][0]]
                 manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
+                adjusted_list_of_script_parameters = []
+            for _list in list_of_script_parameters:
+                for _string in _list:
+                    _list=[_string.strip() for _string in _list]
+                adjusted_list_of_script_parameters.append(_list)
 
         #routine to save a script text file in BMS folder
         if event == "-SAVE-":
@@ -155,6 +171,7 @@ def script_manipulation_form():
                   for _string in _list:
                       new_file_to_save.write(str(_string) + " ")
                   new_file_to_save.write("\n")
+            manipulation_window.close()
 
         # routine that show color names in buttons         
         if event == "-RED-":
@@ -163,22 +180,16 @@ def script_manipulation_form():
             manipulation_window["-RMK-"].update("Yellow!")
         if event == "-CYAN-":
             manipulation_window["-RMK-"].update("Cyan!")
-        if event == "-Magenta-":
+        if event == "-MAGENTA-":
             manipulation_window["-RMK-"].update("Magenta!")
         if event == "-GREEN-":
             manipulation_window["-RMK-"].update("Green!")
         if event == "-BLACK-":
             manipulation_window["-RMK-"].update("Black!") 
-                      
-                  # file_to_save.write(_list[0] + " ")
-                  # j = 1
-                  # while j < len(_list):
-                  #      file_to_save.write(str(_list[j]) + " ")
-                  #      j += 1
-                  # file_to_save.write("\n")
     
     return manipulation_window
 
+#make main window
 def make_window(): 
     
     find_tooltip = "TODO."
@@ -218,16 +229,17 @@ def make_window():
    
     return window
 
+#entrance of the program
 def main():
  
     window = make_window()
     while True:
         event, values = window.read()
-        print(event, values)
+        #print(event, values)
         
         #close window and terminate application
         if event in (sg.WIN_CLOSED, "-QUIT_S-"):
-            print (event)
+            #print (event)
             break
         
         #show python version
@@ -256,15 +268,53 @@ def main():
                 contents=file_to_read.read()
                 window["-TOUT-"].update(os.path.join(folder_location, file_selection))
                 window["-TEXT-"].update(contents)
-                
+         
         #routine to open a script file
         if event == "-OPEN_S-":
-            edit_list=["-TEXT-"]
-            print (["-TEXT-"])
-           
+            #select a file to open from a list
+            opened_script_list = [] 
+            file_selection=values["-FILE_LIST-"][0]
+            file_to_open = os.path.join(folder_location, file_selection)
+            with open (file_to_open) as _file_:   
+              opened_script_list=_file_.readlines()
+            #print(opened_script_list)
+            #turn a list in a list of lists
+            _list1 = []
+            for _el1 in opened_script_list:
+                sub1=_el1.split(",")
+                _list1.append(sub1)
+            #print(_list1)
+            # turn each sub list of strings, dealing with comments and texts
+            _list2 = []
+            for _list_ in _list1:
+                for _str_ in _list_:
+                   if (_str_.find("//")!=-1) or (_str_.find("\"")!=-1):
+                       temp_list_a=[]
+                       temp_list_a.append(_str_)
+                       _list2.append(temp_list_a)
+                   else:
+                       _str_=_str_.strip(" ")
+                       sub2=_str_.split(" ")
+                       _list2.append(sub2)
+            #print(_list2)
+            #convert each sub list to 6 itens string lists to fit in table
+            _list3 = []
+            size = 5
+            for lst in _list2:
+                while len(lst) <= size:
+                    lst.append(" ")
+                _list3.append(lst)
+            #print(_list3)
+            script_manipulation_form(_list3)
+     
         #routine to create a new script file    
         if event == "-NEW_S-":
-            script_manipulation_form()
+            empty_script_list=[]
+            script_manipulation_form(empty_script_list)
+            file_names = [f for f in file_list if os.path.isfile(os.path.join(folder_location, f)) and f.lower().endswith((".txt", ".run"))]
+            window["-FILE_LIST-"].update(file_names)
+            window["-TOUT-"].update(" ")
+            window["-TEXT-"].update(" ")
          
         #routine to delete a script file    
         if event == "-DEL_S-":
