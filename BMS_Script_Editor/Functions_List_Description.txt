@@ -1,0 +1,57 @@
+Blank space to separate script lines.
+Comment symbol.  Use this before your comments.  Will be ignored by the script.
+Allows the system to recognize any commands listed as arguments.
+Blocks the system from recognizing any commands listed as arguments.
+Immediately jumps to the section identified by <section>.  Execution will return to this location.
+If the prior return value is true jumps immediately to the section identified by <section>.
+If the prior return value is false jumps immediately to the section identified by <section>.
+Immediately removes all drawn elements from the screen (Such as those created by "Print" "Line" and "Oval" statements).
+Delete a specific fault.
+Immediately removes the nth last drawn elements from the screen. (Such as those created by "Print" "Line" and "Oval" statements).
+Causes one command per frame execution to resume.
+Immediately ends the script.
+This function can be used to end a section.
+Execute multiple commands in a single frame. (be careful when using this function).
+Draw two circles around a function in the cockpit (knob, button, rotary etc.) for the duration of <time>.
+If the return value of the last command is true, then execution moves to the next instruction.
+If the return value of the last command is false, then execution moves to the next instruction.
+Immediately jumps to the section identified by <section>.
+If the prior return value is true jumps immediately to the section identified by <section>.
+If the prior return value is false jumps immediately to the section identified by <section>.
+Draws a line for <time> duration from x1, y1 to x2, y2 coordinates.
+Moves the cursor from its current position by x and y amount.
+Offsets the current 3d view from its current position by the amounts specified by <float (x)> and <float (y)>. 
+Draws an oval on the screen for <time> duration at the current position of the cursor.
+Prints a string to the screen using the current cursor settings for the duration of <time>. 
+Sets the current cursor color used for all print and draw functions.
+Sets the cursor position to the location specified in <float (x)> and <float (y)>.
+Sets  the current cursor color used for draw functions colors only.
+Sets the rate of flashing that should occur for draw functions: (0x100 = fast, 0x900 = slow).
+Sets a fault specified by its individual fault id. (Fault Code table can be found in the Technical Manual).
+Sets the rate of flashing that should occur for all text and draw functions: (0x100 = fast, 0x900 = slow).
+Sets the font size specified by <integer>.  (0 = default bold, 1 = bigger bold, 2 = default).
+You can set the background color for text functions. The default is set to transparent.
+Sets  the current cursor color used for text functions colors only.
+Sets the rate of flashing that should occur for text functions: (0x100 = fast, 0x900 = slow).
+Set the fuel capacity for each fuel compartment independently.
+Sets the amount of cannon rounds (default is 510).
+This sets the line width defined as a floating point number from 0 to 1. Default = 0.005.
+Change Maverick spool up time (in seconds – default is 180).
+Sets the current 3d view to the coordinates specified by <float (x)> and <float (y)>.
+Sets the type of text boxing that should apply to print statements: (0 = no boxing, 2 = boxed).
+Sets the orientation of the text relative to the cursor position: (0 = left, 1 = centered, 2 = right).
+Causes <command> to be executed just as if the user had pressed the keystroke.
+Causes <command> to be executed (KEY_PRESS event only).
+Causes <command> to be released (KEY_RELEASE event only).
+Plays the sound specified by <string>.
+Pauses execution of the script until the specific REAL time expires.
+Pauses execution of the script until the aircraft gets airborne.
+Pauses execution of the script until the specific GAME time expires.
+Draw two circles around a function in the cockpit and script pauses for the specified amount of <time>.
+Pauses execution of the script until the command specified is executed by the user. 
+Pauses execution of the script for <time> duration or until the user moves the mouse cursor.
+Prints a string to the screen using. Execution does not advance to the next command until <time> has expired.
+Plays the sound specified by <string>. Script pauses until the sound finishes playing.
+Pauses execution of the script for <time> duration or until the last “Sound” stop playing.
+If the prior return value is true, runs the commands until the next "EndSection".
+If the prior return value is false, runs the commands until the next "EndSection".

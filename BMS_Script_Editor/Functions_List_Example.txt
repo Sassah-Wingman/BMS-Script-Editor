@@ -1,0 +1,57 @@
+Blank line
+// This is a comment
+Allow SimTriggerSecondDetent
+Block SimTriggerSecondDetent
+Call SectionName
+CallIf SectionName
+CallIfNot SectionName
+Clear
+ClearFault 147
+ClearLast
+EndCritical
+EndScript
+EndSection
+EnterCritical
+Hilite3DButton 10 SimICPAG
+If
+IfNot
+Jump SectionName
+JumpIf SectionName
+JumpIfNot SectionName
+Line 40 0.55 -0.10 0.75 -0.50
+MoveCursor 0.0 -0.05
+MovePanTilt 0.03 -0.12
+Oval 40 0.05 (circle) – Oval 40 0.1 0.05 (oval)
+Print 20 "Hello World"
+SetColor 0xFFFFFFFF
+SetCursor 0.0 0.95
+SetDrawColor 0xFFFFFFFF
+SetDrawFlash 0x100
+SetFault 147
+SetFlash 0x100
+SetFont 1
+SetFontBGColor 0xFFFFFFFF
+SetFontColor 0xFFFFFFFF
+SetFontFlash 0x100
+SetFuel 0 500 100 100 100 100 100 0 0 0 0 0 0 0
+SetGunAmmo 0
+SetLineWidth 0.01
+SetMavCoolTime 60.0
+SetPanTilt -0.40 1.13
+SetTextBoxed 2
+SetTextOrientation 2
+SimCommand SimTogglePaused
+SimCommandPress SimEject
+SimCommandRelease SimEject
+Sound "..\subFolder\soundFile.ogg"
+Wait 60
+WaitForNoWOW
+WaitGameTime 60
+WaitHilite3DButton 10 SimICPAG
+WaitInput 111 SimPickle SimTriggerSecondDetent
+WaitMouse 40 -0.34 0.75 0.05
+WaitPrint 40 "Hello World"
+WaitSound "soundFile.wav"
+WaitSoundStop 60
+While
+WhileNot

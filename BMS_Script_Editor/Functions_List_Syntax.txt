@@ -1,0 +1,57 @@
+Blank line
+A comment starting with //
+Allow <command >
+Block <command >
+Call <section>
+CallIf <section>
+CallIfNot <section>
+Clear
+ClearFault <integer>
+ClearLast <Integer – optional>
+EndCritical
+EndScript
+EndSection
+EnterCritical
+Hilite3DButton <time> < command> <integer – optional>
+If
+IfNot
+Jump <section>
+JumpIf <section>
+JumpIfNot <section>
+Line <time> <float (x1)> <float (y1)> <float (x2)> <float (y2)>
+MoveCursor <float (x)> <float (y)>
+MovePanTilt <float (x)> <float (y)>
+Oval <time> <float (radius x)> <float (radius y) optional>
+Print <time> <string>
+SetColor <hex>
+SetCursor <float (x)> <float (y)>
+SetDrawColor <hex>
+SetDrawFlash <Hex>
+SetFault <integer>
+SetFlash <Hex>
+SetFont <integer>
+SetFontBGColor <hex>
+SetFontColor <hex>
+SetFontFlash <Hex>
+SetFuel <integer1> <integer2> <integer3> … <integer13> <integer14>
+SetGunAmmo <Integer>
+SetLineWidth <float>
+SetMavCoolTime <float>
+SetPanTilt <float (x)> <float (y)>
+SetTextBoxed <Integer>
+SetTextOrientation <Integer>
+SimCommand <command>
+SimCommandPress <command>
+SimCommandRelease <command>
+Sound <string>
+Wait <time>
+WaitForNoWOW
+WaitGameTime <time>
+WaitHilite3DButton <time> < command> <integer – optional>
+WaitInput <time> <command>
+WaitMouse <time> <float (target x)> <float (target y)> <float (distance)>
+WaitPrint <time> <string>
+WaitSound <string>
+WaitSoundStop <time>
+While
+WhileNot

@@ -2,18 +2,16 @@
 # using Pysimplegui 3.17.
 # Sao Paulo, Brazil
 # Dec 2023
-#__version__ = "1.24.4 - mar 2024"
+#__version__ = "1.24.5 - apr 2024"
 
-#from ast import Return
-#from tkinter.font import Font
-#from turtle import color
 import PySimpleGUI as sg
 import os
 import sys
 
-version = "1.24.4"
+from _pytest.monkeypatch import V
 
-#sg.theme("GrayGrayGray")
+version = "1.24.5"
+
 sg.set_options(font = "Arial, 12")
 
 #get list of BMS SCRIPT FUNCTIONS to be displayed in sg.Combo
@@ -28,6 +26,39 @@ def get_list_of_functions():
        sys.exit(0)
    return list_of_functions
 
+#get list of BMS SCRIPT FUNCTIONS explanations to be displayed for the user
+def get_list_of_functions_description():
+   try:
+       with open("Functions_List_Description.txt") as text_file_with_functions_description:
+           list_of_functions_description = text_file_with_functions_description.readlines()
+   except:
+       sg.popup("Functions_List_Description.txt is missing! Program will close!", text_color = ("coral"))
+       print("Functions_List_Description.txt not found!")
+       sys.exit(0)
+   return list_of_functions_description
+
+#get list of BMS SCRIPT FUNCTIONS Syntax to be displayed for the user
+def get_list_of_functions_syntax():
+   try:
+       with open("Functions_List_Syntax.txt") as text_file_with_functions_syntax:
+           list_of_functions_syntax = text_file_with_functions_syntax.readlines()
+   except:
+       sg.popup("Functions_List_Syntax.txt is missing! Program will close!", text_color = ("coral"))
+       print("Functions_List_Syntax.txt not found!")
+       sys.exit(0)
+   return list_of_functions_syntax
+
+#get list of BMS SCRIPT FUNCTIONS Examples to be displayed for the user
+def get_list_of_functions_example():
+   try:
+       with open("Functions_List_Example.txt") as text_file_with_functions_example:
+           get_list_of_functions_example = text_file_with_functions_example.readlines()
+   except:
+       sg.popup("Functions_List_Example.txt is missing! Program will close!", text_color = ("coral"))
+       print("Functions_List_Example.txt not found!")
+       sys.exit(0)
+   return get_list_of_functions_example
+
 #get list of BMS CALLBACKS to be displayed in sg.Combo
 def get_list_of_callbacks():
    try:
@@ -40,17 +71,72 @@ def get_list_of_callbacks():
        sys.exit(0)
    return list_of_callbacks
 
-#get list of SCRIPT HEX COLORS to be displayed in sg.Combo
+#get list of SCRIPT COLORS to be displayed in sg.Combo
 def get_list_of_colors():
    try:
        with open("Colors_List.txt") as text_file_with_colors:
            list_of_colors = text_file_with_colors.readlines()
-           list_of_colors.sort()
    except:
        sg.popup("Colors_List.txt is missing! Program will close!", text_color = ("coral"))
        print("Colors_List.txt not found!")
        sys.exit(0)
    return list_of_colors
+
+#get list of SCRIPT HEX COLORS to be displayed in sg.Combo
+def get_list_of_colors_hex():
+   try:
+       with open("Colors_Hex_List.txt") as text_file_with_colors_hex:
+           list_of_colors_hex = text_file_with_colors_hex.readlines()
+   except:
+       sg.popup("Colors_Hex_List.txt is missing! Program will close!", text_color = ("coral"))
+       print("Colors_Hex_List.txt not found!")
+       sys.exit(0)
+   return list_of_colors_hex
+
+#get list of color index from parameter value
+def get_color_index(parameter_value):
+    #find index from selected combo parameter 1 and 2
+    try:
+        colors_index = merged_colors_callbacks.index(parameter_value)
+        print(colors_index)
+        #get the hexadecimal list from the file
+        colors_hexadecimal_list = get_list_of_colors_hex()
+    except:
+        return parameter_value
+    #match combo index with hexadecimal list index
+    try:
+        colors_hexadecimal_list[colors_index]
+        colors_hexadecimal = colors_hexadecimal_list[colors_index]
+        return colors_hexadecimal
+    except:
+        return parameter_value
+
+#match remark field hexa with right color   
+def get_color_match(parameter_value):
+    colors_index = merged_colors_callbacks.index(parameter_value)
+    print(colors_index)
+    color_choice = "white"
+    if colors_index == 1:
+        color_choice = "red"
+        return color_choice
+    elif colors_index == 2:
+        color_choice = "yellow"
+        return color_choice
+    elif colors_index == 3:
+        color_choice = "cyan"
+        return color_choice
+    elif colors_index == 4:
+        color_choice = "magenta"
+        return color_choice
+    elif colors_index == 5:
+        color_choice = "green1"
+        return color_choice
+    elif colors_index == 6:
+        color_choice = "black"
+        return color_choice
+    else:
+        color_choice = "white"
+        return color_choice
 
 #remove all "\n" symbol generated from "append.values" within the sublists 
 def remove_symbol_from_list (list_with_symbols):
@@ -157,17 +243,19 @@ def script_manipulation_form(list_to_manipulate):
                                     "CRTL + C.",]
 
     list_of_script_parameters = list_to_manipulate
-    headings = ["Function", "First Parameter", "Second Parameter", "Third Parameter", "Forth Parameter", "Fifth Parameter"]
+    headings = ["Script Function", "First Parameter", "Second Parameter", "Third Parameter", "Forth Parameter", "Fifth Parameter"]
+    functions_list = get_list_of_functions()
     layout = [[sg.Text("Function:", font = ("Arial", 14)),
-               sg.Combo(values = get_list_of_functions(),  
+               sg.Combo(values = functions_list, 
                         default_value = "//",
                         font = ("Arial", 14),
                         readonly = True,
                         auto_size_text = True,
-                        key="-FUNC-", 
+                        key="-FUNC-",
+                        enable_events = True,
                         tooltip = manipulation_window_tooltips[0])],
-              [sg.Text(headings[1], font = ("Arial", 14)), sg.Combo(values = merged_colors_callbacks, font = ("Arial", 12), key = "-PAR1-", auto_size_text = True, tooltip = manipulation_window_tooltips[1])],
-              [sg.Text(headings[2], font = ("Arial", 14)), sg.Combo(values = merged_colors_callbacks, font = ("Arial", 12), key = "-PAR2-", auto_size_text = True, tooltip = manipulation_window_tooltips[2])],
+              [sg.Text(headings[1], font = ("Arial", 14)), sg.Combo(values = merged_colors_callbacks, font = ("Arial", 12), key = "-PAR1-", auto_size_text = True, enable_events = True, tooltip = manipulation_window_tooltips[1])],
+              [sg.Text(headings[2], font = ("Arial", 14)), sg.Combo(values = merged_colors_callbacks, font = ("Arial", 12), key = "-PAR2-", auto_size_text = True, enable_events = True, tooltip = manipulation_window_tooltips[2])],
               [sg.Text(headings[3], font = ("Arial", 14)), sg.Input(key = "-PAR3-", font = ("Arial", 12), do_not_clear = False, tooltip = manipulation_window_tooltips[3])],
               [sg.Text(headings[4], font = ("Arial", 14)), sg.Input(key = "-PAR4-", font = ("Arial", 12), do_not_clear = False, tooltip = manipulation_window_tooltips[4])],
               [sg.Text(headings[5], font = ("Arial", 14)), sg.Input(key = "-PAR5-", font = ("Arial", 12), do_not_clear = False, tooltip = manipulation_window_tooltips[5])],
@@ -175,8 +263,9 @@ def script_manipulation_form(list_to_manipulate):
                sg.Button("Edit Line", font = ("Arial", 14), key = "-EDIT-", tooltip = manipulation_window_tooltips[7], disabled = False),
                sg.Button("Save Edition", font = ("Arial", 14), key = "-SAED-", tooltip = manipulation_window_tooltips[8], disabled = True),
                sg.Button("Delete Line", font = ("Arial", 14), key = "-DEL-", tooltip = manipulation_window_tooltips[9], disabled = False),
-               sg.Text("                           "),
-               sg.Button("Save File", font = ("Arial", 14), key = "-SAVE-", tooltip = manipulation_window_tooltips[10]),],
+               sg.Button("Save File", font = ("Arial", 14), key = "-SAVE-", tooltip = manipulation_window_tooltips[10]),
+               sg.Text("                                                                                         "),
+               sg.Button("Close Window", button_color = ("red", "white"), font = "Arial, 16", key = "-CLOSE-", tooltip = manipulation_window_tooltips[11])],
               [sg.Table(list_of_script_parameters,
                         headings,
                         expand_x = True,
@@ -193,23 +282,17 @@ def script_manipulation_form(list_to_manipulate):
                         justification = "left", 
                         key = "-TABLE-")],]
     
-    color_row = [[sg.HorizontalSeparator()],
-                 [sg.Button("0xFFFF0000", tooltip = "Red.", size = (10,2), button_color = ("White", "Red"), key = "-RED-"),
-                 sg.Button("0x00FFFF00", tooltip = "Yellow.", size = (10,2), button_color = ("Black", "Yellow"), key = "-YELLOW-") ,
-                 sg.Button("0x0000FFFF", tooltip = "Cyan.", size = (10,2), button_color = ("Black", "Cyan"), key = "-CYAN-"),
-                 sg.Button("0x00FF00FF", tooltip = "Magenta.", size = (10,2), button_color = ("White", "Magenta"), key = "-MAGENTA-"),
-                 sg.Button("0xFF00FF00", tooltip = "Green.", size = (10,2), button_color = ("White", "Green"), key = "-GREEN-"),
-                 sg.Button("0xFFFFFFFF", tooltip = "Black.", size = (14,2), button_color = ("White", "Black"), key = "-BLACK-"),
-                 sg.Text("                                                                      "),
-                 sg.Button("Close Window", button_color = ("red", "white"), font = "Arial, 16", key = "-CLOSE-", tooltip = manipulation_window_tooltips[11])],
-                [sg.HorizontalSeparator()],
-                [sg.Text("Remarks:"), sg.Text(" ", key = "-RMK-")],
-                [sg.Text(" ")],
-                [sg.Text("Use Left (<-) and Right (->) arrows to navigate througth parameter fields.")]]
+    Information_row = [[sg.HorizontalSeparator()],
+                       [sg.Text("Description: ", size = (None, 1)), sg.Text(" ", size = (None, 1), text_color = ("yellow"), key = "-DESC-")],
+                       [sg.Text("Syntax: ", size = (None, 1)), sg.Text(" ", size = (None, 1), text_color = ("gold2"), key = "-SYNT-")],
+                       [sg.Text("Example: ", size = (None, 1)), sg.Text(" ", size = (None, 1), text_color = ("bisque"), key = "-EXEM-")],
+                       [sg.Text("Remarks: ", size = (None, 1)), sg.Text(" ", size = (None, 1), key = "-RMK-")],
+                       [sg.HorizontalSeparator()],
+                       [sg.Text("Use Left (<-) and Right (->) arrows to navigate througth parameter fields.", font = "arial, 16")]]
     
-    layout.append(color_row)
+    layout.append(Information_row)
     
-    manipulation_window = sg.Window("Script Form", layout, resizable = True, size = (1200, 1000), modal = True, finalize = True)
+    manipulation_window = sg.Window("Script Form", layout, resizable = True, size = (1200, 900), modal = True, finalize = True)
 
     #add focus and bind hotkeys to buttons
     manipulation_window["-FUNC-"].set_focus()
@@ -224,11 +307,41 @@ def script_manipulation_form(list_to_manipulate):
     
     while True:
         event, values = manipulation_window.read()
-        #print(event, values)
+        print(event, values)
         if event in (sg.WIN_CLOSED, "-CLOSE-", "Close Window"):
             if sg.popup_yes_no("Confirm exit?", font = "Arial, 14", text_color = ("coral"), no_titlebar = True, keep_on_top = True,  modal = True) == "Yes":   
                 break
+
+        #add description, syntax and example regarding the selected function    
+        if event == "-FUNC-":
+            #find index from selected combo function
+            functions_index = functions_list.index(values["-FUNC-"])
+            #get description, syntax and example lists
+            functions_description_list = get_list_of_functions_description()
+            functions_syntax_list = get_list_of_functions_syntax()
+            functions_example_list = get_list_of_functions_example()
+            #match combo functions indexes with the lists
+            description_index = functions_description_list[functions_index]
+            syntax_index = functions_syntax_list[functions_index]
+            example_index = functions_example_list[functions_index]
+            manipulation_window["-DESC-"].update(description_index)
+            manipulation_window["-SYNT-"].update(syntax_index)
+            manipulation_window["-EXEM-"].update(example_index)
         
+        #add function to replace color name for hexadecimal     
+        if event == "-PAR1-":
+            colors_hexadecimal = get_color_index(values["-PAR1-"])
+            print(colors_hexadecimal)
+            colorx = get_color_match(values["-PAR1-"])
+            manipulation_window["-RMK-"].update(colors_hexadecimal, font = ("Arial", 12, "bold"), text_color = colorx)
+            
+        #add function to replace color name for hexadecimal     
+        if event == "-PAR2-":
+            colors_hexadecimal = get_color_index(values["-PAR2-"])
+            print(colors_hexadecimal)
+            colorx = get_color_match(values["-PAR2-"])
+            manipulation_window["-RMK-"].update(colors_hexadecimal, font = ("Arial", 12, "bold"), text_color = colorx)
+                
         #enable arrows to navigate trought elements
         if event == "-NEXT-":
             next_element = manipulation_window.find_element_with_focus().get_next_focus()
@@ -241,15 +354,15 @@ def script_manipulation_form(list_to_manipulate):
         # routine to add single line to a script text
         if event in("-ADD-", "Add Line"):
             #store values filled in the form to a list
-            list_of_script_parameters.append([values["-FUNC-"], values["-PAR1-"], values["-PAR2-"], values["-PAR3-"], values["-PAR4-"], values["-PAR5-"]])
+            list_of_script_parameters.append([values["-FUNC-"], get_color_index(values["-PAR1-"]), get_color_index(values["-PAR2-"]), values["-PAR3-"], values["-PAR4-"], values["-PAR5-"]])
             manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
             #clear form of previous inputs
             manipulation_window["-FUNC-"].update([])
             manipulation_window["-PAR1-"].update([])
             manipulation_window["-PAR2-"].update([])
-            # manipulation_window["-PAR3-"].update([])
-            # manipulation_window["-PAR4-"].update([])
-            # manipulation_window["-PAR5-"].update([])
+            manipulation_window["-PAR3-"].update([])
+            manipulation_window["-PAR4-"].update([])
+            manipulation_window["-PAR5-"].update([])
             manipulation_window["-FUNC-"].set_focus()
             adjusted_list_of_script_parameters = remove_symbol_from_list(list_of_script_parameters)
 
@@ -280,7 +393,7 @@ def script_manipulation_form(list_to_manipulate):
             if values["-TABLE-"] == []:
                  prompt_to_select_a_row()
             else:
-                list_of_script_parameters[edit_row]=[values["-FUNC-"], values["-PAR1-"], values["-PAR2-"], values["-PAR3-"], values["-PAR4-"], values["-PAR5-"]]
+                list_of_script_parameters[edit_row]=[values["-FUNC-"], get_color_index(values["-PAR1-"]), values["-PAR2-"], values["-PAR3-"], values["-PAR4-"], values["-PAR5-"]]
                 manipulation_window["-TABLE-"].update(values=list_of_script_parameters)
                 manipulation_window["-FUNC-"].update(value = " ")
                 manipulation_window["-PAR1-"].update(value = " ")
@@ -292,7 +405,6 @@ def script_manipulation_form(list_to_manipulate):
                 manipulation_window["-ADD-"].update(disabled = False)
                 manipulation_window["-EDIT-"].update(disabled = False)
                 manipulation_window["-DEL-"].update(disabled = False)
-                   
                 adjusted_list_of_script_parameters = remove_symbol_from_list(list_of_script_parameters)
 
         #delete lines
@@ -324,21 +436,7 @@ def script_manipulation_form(list_to_manipulate):
                           new_file_to_save_as_text.write(str(_string) + " ")
                       new_file_to_save_as_text.write("\n")
                 manipulation_window.close()
-
-        # routine that show color names in buttons         
-        if event == "-RED-":
-            manipulation_window["-RMK-"].update("Red!")
-        if event == "-YELLOW-":
-            manipulation_window["-RMK-"].update("Yellow!")
-        if event == "-CYAN-":
-            manipulation_window["-RMK-"].update("Cyan!")
-        if event == "-MAGENTA-":
-            manipulation_window["-RMK-"].update("Magenta!")
-        if event == "-GREEN-":
-            manipulation_window["-RMK-"].update("Green!")
-        if event == "-BLACK-":
-            manipulation_window["-RMK-"].update("Black!") 
-    
+          
     manipulation_window.close()
     return manipulation_window
 

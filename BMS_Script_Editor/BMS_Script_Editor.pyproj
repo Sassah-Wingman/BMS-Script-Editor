@@ -25,9 +25,10 @@
     <Compile Include="BMS_Script_Editor.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Callback_List.txt" />
-    <Content Include="Colors.txt" />
-    <Content Include="Functions.txt" />
+    <Content Include="Functions_List_Description.txt" />
+    <Content Include="Functions_List_Syntax.txt" />
+    <Content Include="Functions_List_Example.txt" />
+    <Content Include="Colors_List.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
